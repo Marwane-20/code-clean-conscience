@@ -89,9 +89,12 @@ export const FileViewer: React.FC<FileViewerProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[90vh] flex flex-col">
+      <DialogContent className="max-w-6xl h-[90vh] flex flex-col" aria-describedby="file-viewer-description">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center justify-between">
+            <span id="file-viewer-description" className="sr-only">
+              File analysis viewer showing {file.name} with {file.biasedElements} biased elements found
+            </span>
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-warning" />
               {file.name}

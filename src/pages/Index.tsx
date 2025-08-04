@@ -10,6 +10,9 @@ import { ResultsTable } from '@/components/bias-scanner/results-table';
 import { FileViewer } from '@/components/bias-scanner/file-viewer';
 import { exportToCSV, exportToJSON, exportDetailedCSV } from '@/components/bias-scanner/export-utils';
 import { ScanSettings, ScanResults, FileAnalysis } from '@/types/bias-scanner';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { KeyboardShortcutsHelp } from '@/components/bias-scanner/keyboard-shortcuts-help';
+import { HelpDialog } from '@/components/bias-scanner/help-dialog';
 
 const Index = () => {
   const [settings, setSettings] = useState<ScanSettings>(defaultScanSettings);
@@ -29,6 +32,17 @@ const Index = () => {
   React.useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onEscape: () => {
+      if (selectedFile) setSelectedFile(null);
+      if (showSettings) setShowSettings(false);
+    },
+    onCtrlS: () => setShowSettings(!showSettings),
+    onCtrlO: () => document.getElementById('file-input')?.click(),
+    onCtrlE: () => results && handleExport('csv'),
+  });
 
   const handleFilesSelected = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -102,10 +116,13 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-2">
+              <KeyboardShortcutsHelp />
+              <HelpDialog />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setDarkMode(!darkMode)}
+                title="Toggle dark mode"
               >
                 {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
@@ -113,6 +130,7 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSettings(!showSettings)}
+                title="Scanner settings (Ctrl+S)"
               >
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
