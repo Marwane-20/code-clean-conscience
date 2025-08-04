@@ -141,7 +141,7 @@ const Index = () => {
                 asChild
               >
                 <a 
-                  href="https://github.com/your-repo/code-bias-scanner" 
+                  href="https://github.com/Marwane-20/code-clean-conscience.git" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
