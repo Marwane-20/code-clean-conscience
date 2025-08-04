@@ -188,7 +188,9 @@ export class BiasScanner {
     
     return this.settings.biasedTerms.find(term => {
       const termText = this.settings.caseSensitive ? term.term : term.term.toLowerCase();
-      return searchText.includes(termText);
+      // Use word boundary regex to match whole words only
+      const regex = new RegExp(`\\b${termText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+      return regex.test(searchText);
     }) || null;
   }
 
@@ -197,7 +199,9 @@ export class BiasScanner {
     
     return this.settings.biasedTerms.filter(term => {
       const termText = this.settings.caseSensitive ? term.term : term.term.toLowerCase();
-      return searchText.includes(termText);
+      // Use word boundary regex to match whole words only
+      const regex = new RegExp(`\\b${termText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+      return regex.test(searchText);
     });
   }
 
@@ -214,17 +218,21 @@ export class BiasScanner {
       const lineText = this.settings.caseSensitive ? line : line.toLowerCase();
       const termText = this.settings.caseSensitive ? biasedTerm.term : biasedTerm.term.toLowerCase();
       
-      if (lineText.includes(searchPattern) && searchPattern.includes(termText)) {
-        const column = lineText.indexOf(searchPattern);
-        
-        occurrences.push({
-          type,
-          line: index + 1,
-          column,
-          content: searchText,
-          context: line.trim(),
-          biasedTerm
-        });
+      // Use word boundary regex to find exact matches in the line
+      const regex = new RegExp(`\\b${termText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+      const matches = [...lineText.matchAll(regex)];
+      
+      for (const match of matches) {
+        if (match.index !== undefined) {
+          occurrences.push({
+            type,
+            line: index + 1,
+            column: match.index,
+            content: match[0],
+            context: line.trim(),
+            biasedTerm
+          });
+        }
       }
     });
 
